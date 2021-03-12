@@ -4,23 +4,27 @@
 namespace Golly\Authority\Models;
 
 
+use Carbon\Carbon;
 use Database\Factories\UserFactory;
 use Golly\Authority\Eloquent\Model;
 use Golly\Authority\Models\Filters\UserFilter;
 use Golly\Authority\Models\Traits\HasAccessToken;
 use Golly\Authority\Models\Traits\HasAvatar;
 use Golly\Authority\Models\Traits\HasRoles;
+use Golly\Elastic\Eloquent\Searchable;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
@@ -33,17 +37,20 @@ use Illuminate\Support\Facades\Hash;
  * @property string $name
  * @property string $email
  * @property string $phone
- * @property string|null $avatar
  * @property string $group
+ * @property string|null $title
+ * @property string|null $signature
+ * @property string|null $avatar
  * @property string $password
+ * @property boolean $is_admin
  * @property boolean $is_active
  * @property string $inactive_reason
  * @property boolean $is_tmp
  * @property string|null $tmp_started_at
  * @property string|null $tmp_ended_at
  * @property string|null $api_token
- * @property string $created_at
- * @property string $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  * @property string|null $deleted_at
  * @property Collection $children
  * @property User $parent
@@ -63,7 +70,8 @@ class User extends Model implements
         HasAvatar,
         HasAccessToken,
         HasRoles,
-        HasFactory;
+        HasFactory,
+        Searchable;
 
     /**
      * The attributes that are mass assignable.
@@ -71,19 +79,19 @@ class User extends Model implements
      * @var array
      */
     protected $fillable = [
-        'parent_id',
         'name',
         'email',
-        'avatar',
         'phone',
         'group',
-        'password',
+        'title',
+        'signature',
+        'avatar',
+        'is_admin',
         'is_active',
         'inactive_reason',
         'is_tmp',
         'tmp_started_at',
-        'tmp_ended_at',
-        'api_token'
+        'tmp_ended_at'
     ];
 
     /**
@@ -101,6 +109,7 @@ class User extends Model implements
      * @var string[]
      */
     protected $casts = [
+        'is_admin' => 'boolean',
         'is_active' => 'boolean',
         'is_tmp' => 'boolean',
         'created_at' => 'datetime:Y-m-d H:i:s',
@@ -200,7 +209,7 @@ class User extends Model implements
             return false;
         }
 
-        return $this->is_tmp ? $this->tmpIsAllow() : true;
+        return $this->is_tmp ? $this->isTmpAllow() : true;
     }
 
     /**
@@ -208,13 +217,13 @@ class User extends Model implements
      */
     public function isAdmin(): bool
     {
-        return false;
+        return $this->is_admin;
     }
 
     /**
      * @return bool
      */
-    public function tmpIsAllow(): bool
+    public function isTmpAllow(): bool
     {
         if (
             $this->tmp_started_at &&
@@ -235,7 +244,7 @@ class User extends Model implements
      */
     public function getExpirationMinutes(): int
     {
-        if ($this->tmpIsAllow()) {
+        if ($this->isTmpAllow()) {
             return now()->diffInMinutes($this->tmp_ended_at);
         }
 

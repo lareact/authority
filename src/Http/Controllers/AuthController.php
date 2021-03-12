@@ -4,6 +4,7 @@
 namespace Golly\Authority\Http\Controllers;
 
 
+use Exception;
 use Golly\Authority\Actions\CreateUserAction;
 use Golly\Authority\Actions\LoginAction;
 use Golly\Authority\Actions\UpdatePasswordAction;
@@ -74,6 +75,7 @@ class AuthController extends ApiController
     /**
      * @param Request $request
      * @return JsonResponse
+     * @throws Exception
      */
     public function logout(Request $request)
     {
@@ -87,7 +89,7 @@ class AuthController extends ApiController
      * @param Request $request
      * @return JsonResponse
      */
-    public function me(Request $request)
+    public function info(Request $request)
     {
         return $this->sendArray([
             'user' => $request->user()->asArray(),

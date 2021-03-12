@@ -32,10 +32,7 @@ class AccessTokenGuard implements Guard
      * @param UserProvider $provider
      * @param Request $request
      */
-    public function __construct(
-        UserProvider $provider,
-        Request $request
-    )
+    public function __construct(UserProvider $provider, Request $request)
     {
         $this->provider = $provider;
         $this->request = $request;

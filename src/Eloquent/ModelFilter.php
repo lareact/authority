@@ -8,7 +8,6 @@ use Golly\Authority\Contracts\FilterInterface;
 use Golly\Authority\Exceptions\FilterException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Illuminate\Support\Traits\ForwardsCalls;
 
 /**
  * Class ModelFilter
@@ -17,12 +16,15 @@ use Illuminate\Support\Traits\ForwardsCalls;
  */
 class ModelFilter implements FilterInterface
 {
-    use ForwardsCalls;
-
     /**
      * @var QueryBuilder
      */
     protected $query;
+
+    /**
+     * @var array
+     */
+    protected $input = [];
 
     /**
      * 存在的索引
@@ -33,38 +35,34 @@ class ModelFilter implements FilterInterface
 
     /**
      * @param QueryBuilder $query
-     * @param array $params
+     * @param array $input
      * @return QueryBuilder
      * @throws FilterException
      */
-    public function handle(QueryBuilder $query, array $params): QueryBuilder
+    public function handle(QueryBuilder $query, array $input): QueryBuilder
     {
         $this->query = $query;
-        $params = $this->handleParamPriorities($params);
+        $this->input = $input;
+        $input = $this->handleInputPriorities($input);
         // 关联关系&&排序
-        $with = Arr::pull($params, 'with');
-        $order = Arr::pull($params, 'order');
+        $with = Arr::pull($input, 'with');
+        $order = Arr::pull($input, 'order');
         // 过滤项
-        foreach ($params as $key => $value) {
+        foreach ($input as $key => $value) {
             $method = $this->getKeyMethod($key);
             if ($this->isCallable($method)) {
-                $result = $this->$method($value);
-                if ($result instanceof QueryBuilder) {
-                    $this->query = $result;
-                } else {
-                    throw new FilterException(sprintf('过滤器函数（%s）存在错误', $method));
-                }
+                $this->$method($value);
             }
         }
         if ($with) {
             if (method_exists($this, 'interceptWith')) {
-                $this->query = $this->interceptWith($with);
+                $this->interceptWith($with);
             } else {
-                $this->query = $this->with($with);
+                $this->with($with);
             }
         }
         if ($order) {
-            $this->query = $this->order($order);
+            $this->order($order);
         }
 
         return $this->query;
@@ -72,21 +70,21 @@ class ModelFilter implements FilterInterface
 
     /**
      * @param string $value
-     * @return QueryBuilder
+     * @return void
      */
     public function with(string $value)
     {
         $relations = explode(',', $value);
         if (method_exists($this, 'handleWith')) {
-            return $this->handleWith($relations);
+            $this->handleWith($relations);
         }
 
-        return $this->query->with($relations);
+        $this->query->with($relations);
     }
 
     /**
      * @param string $value
-     * @return QueryBuilder
+     * @return void
      */
     public function order(string $value)
     {
@@ -96,26 +94,24 @@ class ModelFilter implements FilterInterface
                 continue;
             }
             [$column, $direction] = str_pad(explode(':', $order), 2, 'desc');
-            $this->query = $this->query->orderBy($column, $direction);
+            $this->query->orderBy($column, $direction);
         }
-
-        return $this->query;
     }
 
     /**
      * 处理参数优先级
      *
-     * @param array $params
+     * @param array $input
      * @return array
      */
-    protected function handleParamPriorities(array $params)
+    protected function handleInputPriorities(array $input)
     {
         if (empty($this->indexes)) {
-            return $params;
+            return $input;
         }
-        $keys = array_intersect_key(array_flip($this->indexes), $params);
+        $keys = array_intersect_key(array_flip($this->indexes), $input);
 
-        return array_replace($keys, $params);
+        return array_replace($keys, $input);
     }
 
     /**
@@ -140,23 +136,6 @@ class ModelFilter implements FilterInterface
     protected function isCallable($method)
     {
         return method_exists($this, $method);
-    }
-
-    /**
-     * @param $method
-     * @param $arguments
-     * @return QueryBuilder
-     * @throws FilterException
-     */
-    public function __call($method, $arguments)
-    {
-        $query = $this->forwardCallTo($this->query, $method, $arguments);
-        if ($query instanceof QueryBuilder) {
-            $this->query = $query;
-            return $query;
-        } else {
-            throw new FilterException('过滤器函数"' . $method . '"存在错误');
-        }
     }
 
 }

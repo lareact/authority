@@ -27,6 +27,6 @@ class PermissionFilter extends ModelFilter
      */
     public function name($value)
     {
-        return $this->query->like('name', $value);
+        return $this->query->whereLike('name', $value);
     }
 }

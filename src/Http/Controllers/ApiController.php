@@ -4,6 +4,7 @@
 namespace Golly\Authority\Http\Controllers;
 
 
+use App\Events\OrderShipped;
 use App\Http\Controllers\Controller;
 use Exception;
 use Golly\Authority\Eloquent\Model;
@@ -42,6 +43,7 @@ class ApiController extends Controller
      */
     public function version()
     {
+        event(new OrderShipped());
         return $this->sendArray([
             'version' => app()->version()
         ]);

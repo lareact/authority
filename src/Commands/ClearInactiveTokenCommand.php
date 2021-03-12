@@ -49,7 +49,9 @@ class ClearInactiveTokenCommand extends Command
         try {
             $days = $this->argument('days');
             $accessToken->where([
-                ['last_used_at', '<', now()->subDays($days)->toDateTimeString()]
+                ['last_used_at', '<', now()->subDays($days)->toDateTimeString()],
+            ])->orWhere([
+                ['expired_at', '<', now()->toDateTimeString()]
             ])->delete();
         } catch (Throwable $e) {
             return 9;

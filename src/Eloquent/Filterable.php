@@ -1,12 +1,10 @@
 <?php
 
 
-namespace Golly\Authority\Eloquent\Traits;
+namespace Golly\Authority\Eloquent;
 
 
 use Golly\Authority\Contracts\FilterInterface;
-use Golly\Authority\Eloquent\QueryBuilder;
-use Golly\Authority\Eloquent\ModelFilter;
 use Golly\Authority\Exceptions\FilterException;
 
 /**

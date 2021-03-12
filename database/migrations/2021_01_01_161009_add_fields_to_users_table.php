@@ -17,14 +17,19 @@ class AddFieldsToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->char('phone', 11)->after('email')->comment('手机号');
-            $table->string('group', 64)->index()->after('phone')->comment('用户组');
-            $table->string('avatar')->nullable()->after('group')->comment('用户头像');
-            $table->boolean('is_active')->default(true)->after('avatar')->comment('是否激活');
-            $table->string('inactive_reason')->nullable()->after('is_active')->comment('注销原因');
-            $table->boolean('is_tmp')->default(false)->after('inactive_reason')->comment('是否为临时用户');
-            $table->timestamp('tmp_started_at')->nullable()->after('is_tmp')->comment('临时账号开始时间');
-            $table->timestamp('tmp_ended_at')->nullable()->after('tmp_started_at')->comment('临时账号结束时间');
+            $table->after('email', function (Blueprint $table) {
+                $table->char('phone', 11)->comment('手机号');
+                $table->string('group', 64)->index()->comment('用户组');
+                $table->string('avatar')->nullable()->comment('用户头像');
+                $table->string('title')->nullable()->comment('职位');
+                $table->string('signature')->nullable()->comment('签名');
+                $table->boolean('is_admin')->default(false)->comment('是否为管理员');
+                $table->boolean('is_active')->default(true)->comment('是否激活');
+                $table->string('inactive_reason')->nullable()->comment('注销原因');
+                $table->boolean('is_tmp')->default(false)->comment('是否为临时用户');
+                $table->timestamp('tmp_started_at')->nullable()->comment('临时账号开始时间');
+                $table->timestamp('tmp_ended_at')->nullable()->comment('临时账号结束时间');
+            });
             $table->string('api_token', 100)->after('password')->nullable()->comment('简单TOKEN');
         });
     }
@@ -38,8 +43,18 @@ class AddFieldsToUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn([
-                'phone', 'group', 'avatar', 'is_active', 'inactive_reason',
-                'is_tmp', 'tmp_started_at', 'tmp_ended_at', 'api_token'
+                'phone',
+                'group',
+                'avatar',
+                'title',
+                'signature',
+                'is_admin',
+                'is_active',
+                'inactive_reason',
+                'is_tmp',
+                'tmp_started_at',
+                'tmp_ended_at',
+                'api_token'
             ]);
         });
     }

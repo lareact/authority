@@ -21,7 +21,7 @@ $router->group([
     $router->post('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('email.verify');
     $router->post('login', [AuthController::class, 'login'])->middleware('throttle:6,1')->name('login');
     $router->post('logout', [AuthController::class, 'logout'])->name('logout');
-    $router->get('me', [AuthController::class, 'me'])->name('auth.me');
+    $router->get('info', [AuthController::class, 'info'])->name('auth.info');
     $router->put('password', [AuthController::class, 'password'])->name('auth.password');
 });
 

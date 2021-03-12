@@ -3,11 +3,13 @@
 
 namespace Golly\Authority\Eloquent;
 
+use DateTimeInterface;
 use Golly\Authority\Eloquent\Traits\Filterable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model as LaravelModel;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 
 /**
  * Class Model
@@ -30,17 +32,6 @@ class Model extends LaravelModel
     }
 
     /**
-     * @param false $withRelations
-     * @return array
-     */
-    public function asArray($withRelations = false)
-    {
-        return $withRelations
-            ? $this->toArray()
-            : $this->attributesToArray();
-    }
-
-    /**
      * @param array $params
      * @return LengthAwarePaginator
      */
@@ -49,5 +40,15 @@ class Model extends LaravelModel
         $perPage = Arr::pull($params, 'perPage');
 
         return (new static())->filter($params)->paginate($perPage);
+    }
+
+
+    /**
+     * @param DateTimeInterface $date
+     * @return string
+     */
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return Carbon::instance($date)->toDateTimeString();
     }
 }

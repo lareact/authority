@@ -33,6 +33,10 @@ class LoginAction extends Action
         if (!$user || !$user->checkPassword($request->json('password'))) {
             $this->failedValidation();
         }
+        if (!$user->isAdmin()) {
+            $this->errorMessage = '非管理员不能登陆';
+            $this->failedValidation();
+        }
         if (!$user->canLogin()) {
             $this->errorMessage = '当前用户被限制登陆';
             $this->failedValidation();

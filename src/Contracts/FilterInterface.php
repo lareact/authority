@@ -15,8 +15,8 @@ interface FilterInterface
 
     /**
      * @param QueryBuilder $query
-     * @param array $params
+     * @param array $input
      * @return QueryBuilder
      */
-    public function handle(QueryBuilder $query, array $params): QueryBuilder;
+    public function handle(QueryBuilder $query, array $input): QueryBuilder;
 }
