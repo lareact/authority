@@ -7,24 +7,19 @@ namespace Golly\Authority\Models;
 use Carbon\Carbon;
 use Database\Factories\UserFactory;
 use Golly\Authority\Eloquent\Model;
-use Golly\Authority\Models\Filters\UserFilter;
+use Golly\Authority\Filters\UserFilter;
 use Golly\Authority\Models\Traits\HasAccessToken;
-use Golly\Authority\Models\Traits\HasAvatar;
 use Golly\Authority\Models\Traits\HasRoles;
-use Golly\Elastic\Eloquent\Searchable;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
@@ -67,11 +62,9 @@ class User extends Model implements
         CanResetPassword,
         MustVerifyEmail,
         Notifiable,
-        HasAvatar,
         HasAccessToken,
         HasRoles,
-        HasFactory,
-        Searchable;
+        HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -111,9 +104,7 @@ class User extends Model implements
     protected $casts = [
         'is_admin' => 'boolean',
         'is_active' => 'boolean',
-        'is_tmp' => 'boolean',
-        'created_at' => 'datetime:Y-m-d H:i:s',
-        'updated_at' => 'datetime:Y-m-d H:i:s'
+        'is_tmp' => 'boolean'
     ];
 
     /**
@@ -122,23 +113,6 @@ class User extends Model implements
     public function newModelFilter()
     {
         return new UserFilter();
-    }
-
-    /**
-     * @return BelongsTo
-     */
-    public function parent()
-    {
-        return $this->belongsTo(static::class, 'id', 'parent_id');
-    }
-
-
-    /**
-     * @return HasMany
-     */
-    public function children()
-    {
-        return $this->hasMany(static::class, 'parent_id', 'id');
     }
 
     /**
@@ -181,14 +155,6 @@ class User extends Model implements
             'id',
             'id'
         );
-    }
-
-    /**
-     * @return bool
-     */
-    public function isParent()
-    {
-        return $this->parent_id == 0;
     }
 
     /**

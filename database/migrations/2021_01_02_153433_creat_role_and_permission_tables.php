@@ -12,14 +12,14 @@ class CreatRoleAndPermissionTables extends Migration
     public function up()
     {
         Schema::create('roles', function (Blueprint $table) {
-            $table->id('id');
+            $table->id();
             $table->string('name')->unique()->comment('角色');
             $table->string('description')->nullable()->comment('描述');
             $table->timestamps();
         });
 
         Schema::create('permissions', function (Blueprint $table) {
-            $table->id('id');
+            $table->id();
             $table->string('name')->unique()->comment('权限');
             $table->string('description')->nullable()->comment('描述');
             $table->timestamps();

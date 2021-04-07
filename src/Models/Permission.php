@@ -5,7 +5,7 @@ namespace Golly\Authority\Models;
 
 
 use Golly\Authority\Eloquent\Model;
-use Golly\Authority\Models\Filters\PermissionFilter;
+use Golly\Authority\Filters\NameFilter;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -33,11 +33,11 @@ class Permission extends Model
     protected $hidden = ['pivot'];
 
     /**
-     * @return PermissionFilter
+     * @return NameFilter
      */
     public function newModelFilter()
     {
-        return new PermissionFilter();
+        return new NameFilter();
     }
 
     /**
@@ -71,20 +71,46 @@ class Permission extends Model
     }
 
     /**
-     * @param $id
-     * @return Permission|null
+     * @param array $permissions
+     * @return Collection
      */
-    public static function findById($id)
+    public static function findPermissions(array $permissions)
     {
-        return (new static())->where('id', $id)->first();
+        $ids = [];
+        $names = [];
+        foreach ($permissions as $permission) {
+            if (is_numeric($permission)) {
+                $ids[] = $permission;
+            } else {
+                $names[] = $permission;
+            }
+        }
+        $self = new static;
+        if ($ids) {
+            $self->whereIn('id', $ids);
+        }
+        if ($names) {
+            $self->orWhereIn('name', $names);
+        }
+
+        return $query->get();
     }
 
     /**
-     * @param $name
+     * @param int $id
      * @return Permission|null
      */
-    public static function findByName($name)
+    public static function findById(int $id)
     {
-        return (new static())->where('name', $name)->first();
+        return (new static)->where('id', $id)->first();
+    }
+
+    /**
+     * @param string $name
+     * @return Permission|null
+     */
+    public static function findByName(string $name)
+    {
+        return (new static)->where('name', $name)->first();
     }
 }

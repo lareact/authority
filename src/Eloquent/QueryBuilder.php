@@ -13,13 +13,12 @@ use Illuminate\Database\Eloquent\Builder;
 class QueryBuilder extends Builder
 {
 
-
     /**
      * @param string $column
      * @param $value
      * @return QueryBuilder
      */
-    public function whereLeftLike(string $column, $value)
+    public function whereRightLike(string $column, $value)
     {
         return $this->where($column, 'LIKE', "$value%");
     }
@@ -29,7 +28,7 @@ class QueryBuilder extends Builder
      * @param $value
      * @return QueryBuilder
      */
-    public function orWhereLeftLike(string $column, $value)
+    public function orWhereRightLike(string $column, $value)
     {
         return $this->orWhere($column, 'LIKE', "$value%");
     }

@@ -20,7 +20,6 @@ class CreateUserAccessTokensTable extends Migration
             $table->string('token', 100)->unique()->comment('鉴权TOKEN');
             $table->text('abilities')->nullable()->comment('聚合权限');
             $table->timestamp('expired_at')->nullable()->comment('过期时间');
-            $table->timestamp('last_used_at')->nullable()->comment('最后使用时间');
             $table->timestamps();
         });
     }

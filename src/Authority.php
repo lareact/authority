@@ -36,4 +36,20 @@ class Authority
     {
         return config('authority.email', 'email');
     }
+
+    /**
+     * @return string
+     */
+    public static function getPage()
+    {
+        return 'page';
+    }
+
+    /**
+     * @return string
+     */
+    public function getPerPage()
+    {
+        return 'pageSize';
+    }
 }

@@ -7,6 +7,7 @@ namespace Golly\Authority\Services;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\DB;
  */
 class LibService
 {
-    use Dispatchable;
+    use AuthorizesRequests, Dispatchable;
 
     /**
      * @return Authenticatable|null

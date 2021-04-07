@@ -40,7 +40,7 @@ class ClearInactiveTokenCommand extends Command
     }
 
     /**
-     * Execute the console command.
+     * @param UserAccessToken $accessToken
      *
      * @return int
      */
@@ -49,7 +49,7 @@ class ClearInactiveTokenCommand extends Command
         try {
             $days = $this->argument('days');
             $accessToken->where([
-                ['last_used_at', '<', now()->subDays($days)->toDateTimeString()],
+                ['updated_at', '<', now()->subDays($days)->toDateTimeString()],
             ])->orWhere([
                 ['expired_at', '<', now()->toDateTimeString()]
             ])->delete();

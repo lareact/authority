@@ -50,8 +50,7 @@ class UserAccessToken extends Model
      */
     protected $casts = [
         'abilities' => 'json',
-        'expired_at' => 'datetime',
-        'last_used_at' => 'datetime'
+        'expired_at' => 'datetime'
     ];
 
     /**

@@ -5,11 +5,12 @@ namespace Golly\Authority\Models;
 
 
 use Golly\Authority\Eloquent\Model;
-use Golly\Authority\Models\Filters\RoleFilter;
+use Golly\Authority\Filters\NameFilter;
 use Golly\Authority\Models\Traits\HasPermissions;
 use Golly\Authority\Models\Traits\RefreshPermissions;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class Role
@@ -38,11 +39,11 @@ class Role extends Model
     protected $hidden = ['pivot'];
 
     /**
-     * @return RoleFilter
+     * @return NameFilter
      */
     public function newModelFilter()
     {
-        return new RoleFilter();
+        return new NameFilter();
     }
 
     /**
@@ -75,22 +76,30 @@ class Role extends Model
         );
     }
 
-    /**
-     * @param $id
-     * @return Role|null
-     */
-    public static function findById($id)
-    {
-        return (new static())->where('id', $id)->first();
-    }
 
     /**
-     * @param $name
-     * @return Role|null
+     * @param array $roles
+     * @return Collection
      */
-    public static function findByName($name)
+    public static function findRoles(array $roles)
     {
-        return (new static())->where('name', $name)->first();
-    }
+        $ids = [];
+        $names = [];
+        foreach ($roles as $role) {
+            if (is_numeric($role)) {
+                $ids[] = $role;
+            } else {
+                $names[] = $role;
+            }
+        }
+        $query = self::query();
+        if ($ids) {
+            $query->whereIn('id', $ids);
+        }
+        if ($names) {
+            $query->orWhereIn('name', $names);
+        }
 
+        return $query->get();
+    }
 }

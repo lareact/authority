@@ -20,6 +20,9 @@ class AccessTokenGuard implements Guard
 {
     use GuardHelpers;
 
+    /**
+     * @var UserProvider
+     */
     protected $provider;
 
     /**
@@ -52,9 +55,10 @@ class AccessTokenGuard implements Guard
         if ($token = $this->request->bearerToken()) {
             $accessToken = UserAccessToken::findToken($token);
             if ($accessToken && $accessToken->isAvailable()) {
-                $user = $accessToken->user->setAccessToken(
-                    tap($accessToken->forceFill(['last_used_at' => now()]))->save()
-                );
+                $accessToken->forceFill([
+                    'updated_at' => now()->toDateTimeString()
+                ])->save();
+                $user = $accessToken->user->setAccessToken($accessToken);
             }
         }
 
@@ -82,7 +86,6 @@ class AccessTokenGuard implements Guard
      */
     protected function supportToken($tokenable = null)
     {
-        return $tokenable &&
-            in_array(HasAccessToken::class, class_uses_recursive(get_class($tokenable)));
+        return $tokenable && in_array(HasAccessToken::class, class_uses_recursive(get_class($tokenable)));
     }
 }

@@ -6,7 +6,7 @@ namespace Golly\Authority;
 
 use Golly\Authority\Auth\AccessTokenGuard;
 use Golly\Authority\Commands\ClearInactiveTokenCommand;
-use Golly\Authority\Contracts\QueryInputInterface;
+use Golly\Authority\Contracts\ExtraQueryInterface;
 use Golly\Authority\Http\Middleware\AntJsonMiddleware;
 use Golly\Authority\Http\Middleware\PermissionMiddleware;
 use Golly\Authority\Http\Middleware\RateLimiterMiddleware;
@@ -32,8 +32,7 @@ class AuthorityServiceProvider extends ServiceProvider
     protected $middlewareAliases = [
         'role' => RoleMiddleware::class,
         'permission' => PermissionMiddleware::class,
-        'ant.json' => AntJsonMiddleware::class,
-        'limiter' => RateLimiterMiddleware::class
+        'ant.json' => AntJsonMiddleware::class
     ];
 
     /**
@@ -58,7 +57,7 @@ class AuthorityServiceProvider extends ServiceProvider
             ClearInactiveTokenCommand::class
         ]);
         // 添加额外参数
-        $this->app->afterResolving(QueryInputInterface::class, function ($resolved) {
+        $this->app->afterResolving(ExtraQueryInterface::class, function ($resolved) {
             $resolved->addExtraData();
         });
     }

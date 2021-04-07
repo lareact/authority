@@ -10,11 +10,11 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 /**
- * Class ModelFilter
+ * Class Filter
  * @package Golly\Authority\Eloquent
  * @mixin QueryBuilder
  */
-class ModelFilter implements FilterInterface
+class Filter implements FilterInterface
 {
     /**
      * @var QueryBuilder
@@ -46,6 +46,7 @@ class ModelFilter implements FilterInterface
         $input = $this->handleInputPriorities($input);
         // 关联关系&&排序
         $with = Arr::pull($input, 'with');
+        $withCount = Arr::pull($input, 'with_count');
         $order = Arr::pull($input, 'order');
         // 过滤项
         foreach ($input as $key => $value) {
@@ -61,6 +62,9 @@ class ModelFilter implements FilterInterface
                 $this->with($with);
             }
         }
+        if ($withCount) {
+            $this->withCount($withCount);
+        }
         if ($order) {
             $this->order($order);
         }
@@ -75,11 +79,17 @@ class ModelFilter implements FilterInterface
     public function with(string $value)
     {
         $relations = explode(',', $value);
-        if (method_exists($this, 'handleWith')) {
-            $this->handleWith($relations);
-        }
-
         $this->query->with($relations);
+    }
+
+    /**
+     * @param string $value
+     * @return void
+     */
+    public function withCount(string $value)
+    {
+        $relations = explode(',', $value);
+        $this->query->withCount($relations);
     }
 
     /**

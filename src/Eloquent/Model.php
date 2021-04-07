@@ -4,7 +4,8 @@
 namespace Golly\Authority\Eloquent;
 
 use DateTimeInterface;
-use Golly\Authority\Eloquent\Traits\Filterable;
+use Golly\Authority\Contracts\FilterInterface;
+use Golly\Authority\Exceptions\FilterException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model as LaravelModel;
 use Illuminate\Database\Query\Builder;
@@ -14,21 +15,43 @@ use Illuminate\Support\Carbon;
 /**
  * Class Model
  * @package Golly\Authority\Eloquent
+ * @method QueryBuilder filter(array $params)
  * @mixin QueryBuilder
  */
 class Model extends LaravelModel
 {
-    use Filterable;
 
     /**
-     * 进一步封装常用的函数
-     *
      * @param Builder $query
      * @return QueryBuilder
      */
     public function newEloquentBuilder($query)
     {
         return new QueryBuilder($query);
+    }
+
+    /**
+     * @return Filter
+     */
+    public function newModelFilter()
+    {
+        return new Filter();
+    }
+
+    /**
+     * @param QueryBuilder $query
+     * @param array $params
+     * @return QueryBuilder
+     * @throws FilterException
+     */
+    public function scopeFilter(QueryBuilder $query, array $params = [])
+    {
+        $filter = $this->newModelFilter();
+        if ($filter && $filter instanceof FilterInterface) {
+            return $filter->handle($query, $params);
+        }
+
+        return $query;
     }
 
     /**

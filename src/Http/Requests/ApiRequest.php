@@ -35,22 +35,6 @@ abstract class ApiRequest extends FormRequest
     }
 
     /**
-     * @return bool
-     */
-    public function isPost()
-    {
-        return $this->isMethod('POST');
-    }
-
-    /**
-     * @return bool
-     */
-    public function isPut()
-    {
-        return $this->isMethod('PUT');
-    }
-
-    /**
      * 重新定义异常信息，添加errorCode
      *
      * @param Validator $validator

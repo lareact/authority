@@ -3,22 +3,29 @@
 
 namespace Golly\Authority\Http\Requests;
 
-use Golly\Authority\Contracts\QueryInputInterface;
-use Illuminate\Http\Request;
+use Golly\Authority\Contracts\ExtraQueryInterface;
 
 /**
  * Class ExtraRequest
  * @package Golly\Authority\Http\Requests
  */
-class ExtraRequest extends Request implements QueryInputInterface
+class ExtraRequest extends ApiRequest implements ExtraQueryInterface
 {
 
     /**
-     *
+     * @return array
+     */
+    public function rules()
+    {
+        return [];
+    }
+
+    /**
+     * @return void
      */
     public function addExtraData()
     {
-        $this->query->add(['user_id' => null]);
+        $this->query->set('user_id', null);
     }
 
 }

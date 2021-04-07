@@ -30,8 +30,9 @@ class AntJsonMiddleware
     {
         $request->headers->set('Accept', 'application/json');
         $request->headers->set('Content-Type', 'application/json');
-
-        $this->handleQueries($request->query);
+        if ($request->isMethod('GET')) {
+            $this->handleQueries($request->query);
+        }
         $response = $next($request);
         // 返回解析
         if ($response instanceof JsonResponse) {
